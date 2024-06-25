@@ -1,9 +1,17 @@
 import { redirect } from "next/navigation";
+import {
+  CurrencyDollarIcon,
+  MegaphoneIcon,
+  ScaleIcon,
+  SignalIcon,
+} from "@heroicons/react/24/outline";
 
 import prisma from "@/models/db";
 import Items from "@/components/list/Items";
 import REACH from "@/config/reach";
 import PLATFORMS from "@/config/platforms";
+import Image from "next/image";
+import Badge from "@/components/Badge";
 
 export default async function Page({ params }) {
   const user = await prisma.user.findUnique({
@@ -16,6 +24,14 @@ export default async function Page({ params }) {
   if (!user) {
     redirect("/");
   }
+
+  // increment profile views
+  await prisma.user.update({
+    where: { username: params.username },
+    data: {
+      views: { increment: 1 },
+    },
+  });
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -49,10 +65,12 @@ export default async function Page({ params }) {
                 <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
                   <div className="mx-auto flex max-w-2xl items-center justify-between gap-x-8 lg:mx-0 lg:max-w-none">
                     <div className="flex items-center gap-x-6">
-                      <img
+                      <Image
                         src={user.image}
-                        alt=""
+                        alt={user.name}
                         className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
+                        width={64}
+                        height={64}
                       />
                       <h1>
                         <div className="text-sm leading-6 text-gray-500">
@@ -65,7 +83,9 @@ export default async function Page({ params }) {
                     </div>
                     <div className="flex items-center gap-x-4 sm:gap-x-6">
                       <a
-                        href="#"
+                        href={`mailto:${
+                          user.preferredEmail ? user.preferredEmail : user.email
+                        }`}
                         className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                       >
                         Contact
@@ -79,13 +99,27 @@ export default async function Page({ params }) {
                   data={user.platforms.map((platform) => ({
                     id: platform.id,
                     icon: platform.name,
-                    url: platform.url,
-                    urlText: `${REACH().data[platform.reach].name} on ${
-                      PLATFORMS().data[platform.name].display
-                    } with ${REACH().data[platform.reach].group} (from $${
-                      platform.price
-                    })`,
+                    url: platform.example,
+                    urlText: platform.title ? platform.title : platform.name,
                     description: platform.description,
+                    meta: [
+                      {
+                        icon: MegaphoneIcon,
+                        text: REACH().data[platform.reach].name,
+                      },
+                      {
+                        icon: ScaleIcon,
+                        text: REACH().data[platform.reach].group,
+                      },
+                      {
+                        icon: SignalIcon,
+                        text: PLATFORMS().data[platform.name].display,
+                      },
+                      {
+                        icon: CurrencyDollarIcon,
+                        text: platform.price,
+                      },
+                    ],
                   }))}
                 />
               </div>
@@ -97,10 +131,22 @@ export default async function Page({ params }) {
         <div className="grid grid-cols-1 gap-4">
           <section aria-labelledby="section-2-title">
             <h2 className="sr-only" id="section-2-title">
-              Section title
+              User details
             </h2>
-            <div className="overflow-hidden rounded-lg bg-white shadow">
-              <div className="p-6">{/* Your content */}</div>
+            <div className="overflow-hidden rounded-lg bg-white shadow flex flex-col">
+              <a href={user.website} className="p-6">
+                {user.website}
+              </a>
+
+              <div className="p-6">{user.bio}</div>
+
+              <ul className="flex flex-row gap-2 justify-center pb-2">
+                {user.tags?.split(",").map((tag) => (
+                  <li key={tag}>
+                    <Badge text={tag} />
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
         </div>

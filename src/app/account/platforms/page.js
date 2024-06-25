@@ -8,6 +8,12 @@ import Items from "@/components/list/Items";
 import REACH from "@/config/reach";
 import PLATFORMS from "@/config/platforms";
 import Form from "./form";
+import {
+  CurrencyDollarIcon,
+  MegaphoneIcon,
+  ScaleIcon,
+  SignalIcon,
+} from "@heroicons/react/24/outline";
 
 export default async function Page() {
   // check authentication
@@ -44,12 +50,26 @@ export default async function Page() {
                     id: platform.id,
                     icon: platform.name,
                     url: `?id=${platform.id}`,
-                    urlText: `${REACH().data[platform.reach].name} on ${
-                      PLATFORMS().data[platform.name].display
-                    } with ${REACH().data[platform.reach].group} (from $${
-                      platform.price
-                    })`,
+                    urlText: platform.title ? platform.title : platform.name,
                     description: platform.description,
+                    meta: [
+                      {
+                        icon: MegaphoneIcon,
+                        text: REACH().data[platform.reach].name,
+                      },
+                      {
+                        icon: ScaleIcon,
+                        text: REACH().data[platform.reach].group,
+                      },
+                      {
+                        icon: SignalIcon,
+                        text: PLATFORMS().data[platform.name].display,
+                      },
+                      {
+                        icon: CurrencyDollarIcon,
+                        text: platform.price,
+                      },
+                    ],
                   }))}
                 />
               </div>

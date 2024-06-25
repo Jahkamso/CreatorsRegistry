@@ -16,28 +16,33 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { signIn, signOut } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { classNames } from "@/utils/classNames";
-import Link from "next/link";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
-  { name: "Search", href: "#", current: false },
+  { name: "Search", href: "/search", current: false },
 ];
 
-export default function Header({ session }) {
-  const user = {
+export default function Header({ session, user }) {
+  const profile = {
     name: session ? session.user.name : "Guest",
     email: session ? session.user.email : "unknown",
     imageUrl: session
       ? session.user.image
       : "https://images.unsplash.com/photo-1589254066213-a0c9dc853511?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   };
-  const userNavigationAuth = [
-    { name: "Your Profile", href: "/account/profile" },
-    { name: "Your Links", href: "/account/links" },
-    { name: "Sign Out", href: "#", onClick: async () => await signOut() },
-  ];
+  let userNavigationAuth = [];
+
+  if (user) {
+    userNavigationAuth = [
+      { name: "Your Profile", href: `/${user.username}` },
+      { name: "Your Platforms", href: "/account/platforms" },
+      { name: "Settings", href: "/account/profile" },
+      { name: "Sign Out", href: "#", onClick: async () => await signOut() },
+    ];
+  }
 
   return (
     <Popover as="header" className="bg-purple-800 pb-24">
@@ -52,9 +57,9 @@ export default function Header({ session }) {
                   <Image
                     className="h-8 w-auto"
                     src="/logo.svg"
-                    width={100}
-                    height={100}
-                    alt="Content Cerators"
+                    width={32}
+                    height={32}
+                    alt="Content Creators"
                   />
                 </Link>
               </div>
@@ -78,10 +83,12 @@ export default function Header({ session }) {
                       <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white ring-opacity-20 focus:outline-none focus:ring-opacity-100">
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">Open user menu</span>
-                        <img
+                        <Image
                           className="h-8 w-8 rounded-full"
-                          src={user.imageUrl}
+                          src={profile.imageUrl}
                           alt=""
+                          width={32}
+                          height={32}
                         />
                       </MenuButton>
                     </div>
@@ -114,7 +121,7 @@ export default function Header({ session }) {
               </div>
 
               {/* Search */}
-              <div className="min-w-0 flex-1 px-12 lg:hidden">
+              {/* <div className="min-w-0 flex-1 px-12 lg:hidden">
                 <div className="mx-auto w-full max-w-xs">
                   <label htmlFor="desktop-search" className="sr-only">
                     Search
@@ -135,7 +142,7 @@ export default function Header({ session }) {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Menu button */}
               <div className="absolute right-0 flex-shrink-0 lg:hidden">
@@ -170,7 +177,7 @@ export default function Header({ session }) {
                     ))}
                   </nav>
                 </div>
-                <div>
+                {/* <div>
                   <div className="mx-auto w-full max-w-md">
                     <label htmlFor="mobile-search" className="sr-only">
                       Search
@@ -191,7 +198,7 @@ export default function Header({ session }) {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -228,9 +235,9 @@ export default function Header({ session }) {
                           <Image
                             className="h-8 w-auto"
                             src="/logo.svg"
-                            width={80}
-                            height={80}
-                            alt="Content Cerators"
+                            width={32}
+                            height={32}
+                            alt="Content Creators"
                           />
                         </div>
                         <div className="-mr-2">
@@ -269,18 +276,20 @@ export default function Header({ session }) {
                       <div className="pb-2 pt-4">
                         <div className="flex items-center px-5">
                           <div className="flex-shrink-0">
-                            <img
+                            <Image
                               className="h-10 w-10 rounded-full"
-                              src={user.imageUrl}
-                              alt=""
+                              src={profile.imageUrl}
+                              alt={profile.name}
+                              width={40}
+                              height={40}
                             />
                           </div>
                           <div className="ml-3 min-w-0 flex-1">
                             <div className="truncate text-base font-medium text-gray-800">
-                              {user.name}
+                              {profile.name}
                             </div>
                             <div className="truncate text-sm font-medium text-gray-500">
-                              {user.email}
+                              {profile.email}
                             </div>
                           </div>
                         </div>

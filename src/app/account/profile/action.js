@@ -8,8 +8,10 @@ import User from "@/models/User";
 
 export async function profileUpdate(prevState, formData) {
   const username = formData.get("username");
+  const preferredEmail = formData.get("preferredEmail");
   const bio = formData.get("bio");
   const website = formData.get("website");
+  const tags = formData.get("tags");
 
   // check authentication
   const session = await getServerSession(authOptions);
@@ -17,7 +19,7 @@ export async function profileUpdate(prevState, formData) {
     throw new Error("Not authenticated");
   }
 
-  const validate = User({ bio, website, username });
+  const validate = User({ bio, website, username, tags, preferredEmail });
 
   if (!validate.success) {
     return validate;
@@ -44,7 +46,7 @@ export async function profileUpdate(prevState, formData) {
   // save to db
   await prisma.user.update({
     where: { id: session.user.id },
-    data: { bio, website, username },
+    data: { bio, website, username, tags, preferredEmail },
   });
 
   return validate;
